@@ -50,6 +50,6 @@ npm run audit:public
 npm pack --dry-run
 ```
 
-Tests negotiate a real MCP stdio session and exercise Unicode/config round trips, explicit destinations, source-only results, malicious schemes, corrupt payloads and bounded decompression. Registry metadata is in `server.json`; prepared metadata alone does not establish publication.
+Tests negotiate a real MCP stdio session and exercise Unicode/config round trips, explicit destinations, source-only results, malicious schemes, corrupt payloads and bounded decompression. Published in the [official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.j-river%2Fmermaidonline) as `io.github.j-river/mermaidonline`, version `0.1.0`. Public metadata links directly to [Mermaid Online](https://mermaidonline.org/) and the npm package. Source metadata is in `server.json`.
 
 MIT. No customer diagrams or production credentials are included.
