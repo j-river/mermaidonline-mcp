@@ -1,0 +1,39 @@
+name: Publish official MCP Registry
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: official-mcp-registry
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' && github.repository == 'j-river/mermaidonline-mcp'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install checksum-pinned official publisher
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mcp-publisher"
+          cd "$RUNNER_TEMP/mcp-publisher"
+          curl --fail --location --retry 2 --output publisher.tar.gz https://github.com/modelcontextprotocol/registry/releases/download/v1.8.9/mcp-publisher_linux_amd64.tar.gz
+          echo '4d527ca8f1ced0394c962dc925c2a4a4addef441cbefd62501c875e9481823a8  publisher.tar.gz' | sha256sum --check -
+          tar -xzf publisher.tar.gz mcp-publisher
+          echo "$RUNNER_TEMP/mcp-publisher" >> "$GITHUB_PATH"
+      - name: Validate metadata
+        run: mcp-publisher validate server.json
+      - name: Authenticate using short-lived GitHub identity
+        run: mcp-publisher login github-oidc --registry https://registry.modelcontextprotocol.io
+      - name: Publish metadata to official Registry
+        run: mcp-publisher publish server.json
+      - name: Clear temporary Registry login
+        if: always()
+        run: mcp-publisher logout
